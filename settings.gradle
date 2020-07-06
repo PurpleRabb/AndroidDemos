@@ -1,0 +1,2 @@
+rootProject.name='CalTest'
+include ':app'
