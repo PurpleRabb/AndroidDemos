@@ -13,7 +13,6 @@ public abstract class WordDatabase extends RoomDatabase {
     public static synchronized WordDatabase getInstance(Context context) {
         if(INSTANCE == null) {
             INSTANCE = Room.databaseBuilder(context.getApplicationContext(),WordDatabase.class,"word_database")
-            .allowMainThreadQueries()
             .build();
         }
         return INSTANCE;
