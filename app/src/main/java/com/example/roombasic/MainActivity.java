@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Word word = new Word("test","测试");
-                word.setId(35);
+                word.setId(90);
                 wordViewModel.updateWords(word);
             }
         });
