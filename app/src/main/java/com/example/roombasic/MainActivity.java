@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.List;
@@ -20,20 +22,33 @@ public class MainActivity extends AppCompatActivity {
     TextView textView;
     private DataBaseViewModel wordViewModel;
     RecyclerView recyclerView;
-    MyAdapter myAdapter;
+    MyAdapter myAdapter_cardView,myAdapter_normalView;
+    Switch aSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerview);
-        myAdapter = new MyAdapter();
+        myAdapter_normalView = new MyAdapter(false);
+        myAdapter_cardView = new MyAdapter(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(myAdapter);
+        aSwitch = findViewById(R.id.switch_cardview);
+        recyclerView.setAdapter(myAdapter_normalView);
+        aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b) {
+                    recyclerView.setAdapter(myAdapter_cardView);
+                } else {
+                    recyclerView.setAdapter(myAdapter_normalView);
+                }
+            }
+        });
 
         insertButton = findViewById(R.id.insert);
-        updateButton = findViewById(R.id.update);
-        deleteButton = findViewById(R.id.delete);
+        //updateButton = findViewById(R.id.update);
+        //deleteButton = findViewById(R.id.delete);
         clearButton = findViewById(R.id.clear);
 
         textView = findViewById(R.id.textViewEnglish);
@@ -43,8 +58,11 @@ public class MainActivity extends AppCompatActivity {
         wordViewModel.getAllWords().observe(this, new Observer<List<Word>>() {
             @Override
             public void onChanged(List<Word> words) {
-                myAdapter.setAllWords(words);
-                myAdapter.notifyDataSetChanged();
+                myAdapter_cardView.setAllWords(words);
+                myAdapter_cardView.notifyDataSetChanged();
+
+                myAdapter_normalView.setAllWords(words);
+                myAdapter_normalView.notifyDataSetChanged();
             }
         });
 
@@ -80,22 +98,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        updateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Word word = new Word("test","测试");
-                word.setId(90);
-                wordViewModel.updateWords(word);
-            }
-        });
+//        updateButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Word word = new Word("test","测试");
+//                word.setId(90);
+//                wordViewModel.updateWords(word);
+//            }
+//        });
 
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Word word = new Word("test","测试");
-                word.setId(35);
-                wordViewModel.deleteWords(word);
-            }
-        });
+//        deleteButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Word word = new Word("test","测试");
+//                word.setId(35);
+//                wordViewModel.deleteWords(word);
+//            }
+//        });
     }
 }
