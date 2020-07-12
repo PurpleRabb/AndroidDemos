@@ -5,11 +5,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.room.Room;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,46 +16,60 @@ import android.widget.TextView;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    WordDao wordDao;
-    WordDatabase wordDatabase;
     Button insertButton,updateButton,deleteButton,clearButton;
     TextView textView;
-    private LiveData<List<Word>> words;
     private DataBaseViewModel wordViewModel;
+    RecyclerView recyclerView;
+    MyAdapter myAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        recyclerView = findViewById(R.id.recyclerview);
+        myAdapter = new MyAdapter();
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(myAdapter);
 
         insertButton = findViewById(R.id.insert);
         updateButton = findViewById(R.id.update);
         deleteButton = findViewById(R.id.delete);
         clearButton = findViewById(R.id.clear);
 
-        textView = findViewById(R.id.textView2);
+        textView = findViewById(R.id.textViewEnglish);
 
         wordViewModel = new ViewModelProvider(this,new SavedStateViewModelFactory(getApplication(),this))
                 .get(DataBaseViewModel.class);
-        words = wordViewModel.getAllWords();
-        words.observe(this, new Observer<List<Word>>() {
+        wordViewModel.getAllWords().observe(this, new Observer<List<Word>>() {
             @Override
             public void onChanged(List<Word> words) {
-                String text = "";
-                for (int i=0;i<words.size();i++) {
-                    Word word = words.get(i);
-                    text += word.getId() + ":" + word.getWord() + "=" + word.getMeaning() + "\n";
-                }
-                textView.setText(text);
+                myAdapter.setAllWords(words);
+                myAdapter.notifyDataSetChanged();
             }
         });
 
         insertButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Word word1 = new Word("Hello","你好");
-                Word word2 = new Word("Apple","苹果");
-                wordViewModel.insertWords(word1,word2);
+                String[] english_word = {
+                        "Hello",
+                        "Apple",
+                        "Orange",
+                        "World",
+                        "Data",
+                        "Database"
+                };
+                String[] chinese_meaning = {
+                        "你好",
+                        "苹果",
+                        "橘子",
+                        "世界",
+                        "数据",
+                        "数据库"
+                };
+                for(int i=0;i<english_word.length;i++) {
+                    wordViewModel.insertWords(new Word(english_word[i],chinese_meaning[i]));
+                }
             }
         });
 
