@@ -30,8 +30,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recyclerview);
-        myAdapter_normalView = new MyAdapter(false);
-        myAdapter_cardView = new MyAdapter(true);
+        wordViewModel = new ViewModelProvider(this,new SavedStateViewModelFactory(getApplication(),this))
+                .get(DataBaseViewModel.class);
+        myAdapter_normalView = new MyAdapter(false,wordViewModel);
+        myAdapter_cardView = new MyAdapter(true,wordViewModel);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         aSwitch = findViewById(R.id.switch_cardview);
         recyclerView.setAdapter(myAdapter_normalView);
@@ -53,16 +55,18 @@ public class MainActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.textViewEnglish);
 
-        wordViewModel = new ViewModelProvider(this,new SavedStateViewModelFactory(getApplication(),this))
-                .get(DataBaseViewModel.class);
         wordViewModel.getAllWords().observe(this, new Observer<List<Word>>() {
             @Override
             public void onChanged(List<Word> words) {
+                int temp = myAdapter_normalView.getItemCount();
                 myAdapter_cardView.setAllWords(words);
                 myAdapter_cardView.notifyDataSetChanged();
-
-                myAdapter_normalView.setAllWords(words);
-                myAdapter_normalView.notifyDataSetChanged();
+                if (temp != words.size()) {
+                    /*只有数据数量发生改变的时候采取刷新界面，
+                    switchChineseInvisible的改变不要触发界面刷新，否则不平滑*/
+                    myAdapter_normalView.setAllWords(words);
+                    myAdapter_normalView.notifyDataSetChanged();
+                }
             }
         });
 
