@@ -2,19 +2,15 @@ package com.example.roombasic;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,12 +58,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                 if (b) {
                     holder.textViewChinese.setVisibility(View.GONE);
                     word.setChineseInvisible(true);
-                    viewModel.updateWords(word);
                 } else {
                     holder.textViewChinese.setVisibility(View.VISIBLE);
                     word.setChineseInvisible(false);
-                    viewModel.updateWords(word);
                 }
+                viewModel.updateWords(word);
             }
         });
         return new MyViewHolder(itemView);

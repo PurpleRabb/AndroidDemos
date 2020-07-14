@@ -8,11 +8,10 @@ import androidx.lifecycle.LiveData;
 import java.util.List;
 
 public class WordRepository {
-    private WordDatabase wordDatabase;
     private WordDao wordDao;
     private LiveData<List<Word>> allWords;
     public WordRepository(Application application) {
-        wordDatabase = WordDatabase.getInstance(application);
+        WordDatabase wordDatabase = WordDatabase.getInstance(application);
         this.wordDao = wordDatabase.getWordDao();
         allWords = wordDao.getAllWords(); //自动后台执行
     }
@@ -35,6 +34,10 @@ public class WordRepository {
 
     void deleteAllWords() {
         new DeleteAllTask(wordDao).execute();
+    }
+
+    public LiveData<List<Word>> filterWords(String pattern) {
+        return wordDao.getFilteredWords("%" + pattern + "%");//模糊查询SQL需要加%
     }
 
 

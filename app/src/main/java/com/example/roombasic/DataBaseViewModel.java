@@ -1,7 +1,6 @@
 package com.example.roombasic;
 
 import android.app.Application;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -37,4 +36,7 @@ public class DataBaseViewModel extends AndroidViewModel {
         wordRepository.deleteAllWords();
     }
 
+    public LiveData<List<Word>> filterWords(String pattern) {
+        return wordRepository.filterWords(pattern);
+    }
 }
