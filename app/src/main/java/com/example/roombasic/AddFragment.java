@@ -1,6 +1,7 @@
 package com.example.roombasic;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -13,6 +14,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -49,6 +51,9 @@ public class AddFragment extends Fragment {
         wordViewModel = new ViewModelProvider(this,new SavedStateViewModelFactory(requireActivity().getApplication(),this))
                 .get(DataBaseViewModel.class);
         buttonSubmit.setEnabled(false);
+        textViewEnglish.requestFocus();
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(textViewEnglish,0);
 
         textViewEnglish.addTextChangedListener(new TextWatcher() {
             @Override

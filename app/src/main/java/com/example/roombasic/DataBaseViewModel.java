@@ -11,7 +11,6 @@ import java.util.List;
 
 public class DataBaseViewModel extends AndroidViewModel {
     private WordRepository wordRepository;
-    private LiveData<List<Word>> allWords;
 
     public DataBaseViewModel(@NonNull Application application) {
         super(application);
