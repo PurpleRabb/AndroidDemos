@@ -70,9 +70,9 @@ public class WordFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filteredWords.removeObservers(requireActivity()); //先移除原来的观察，下面重新观察
+                filteredWords.removeObservers(getViewLifecycleOwner()); //先移除原来的观察，下面重新观察
                 filteredWords = wordViewModel.filterWords(newText.trim());
-                filteredWords.observe(requireActivity(), new Observer<List<Word>>() {
+                filteredWords.observe(getViewLifecycleOwner(), new Observer<List<Word>>() {
                     @Override
                     public void onChanged(List<Word> words) {
                         int temp = myAdapter_normalView.getItemCount();
@@ -126,7 +126,7 @@ public class WordFragment extends Fragment {
             recyclerView.setAdapter(myAdapter_normalView);
 
         filteredWords = wordViewModel.getAllWords();
-        filteredWords.observe(requireActivity(), new Observer<List<Word>>() {
+        filteredWords.observe(getViewLifecycleOwner(), new Observer<List<Word>>() {
             @Override
             public void onChanged(List<Word> words) {
                 int temp = myAdapter_normalView.getItemCount();
