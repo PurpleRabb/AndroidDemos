@@ -10,24 +10,35 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
-    List<Word> allWords = new ArrayList<>();
+public class MyAdapter extends ListAdapter<Word,MyAdapter.MyViewHolder> {
     boolean is_cardView;
     DataBaseViewModel viewModel;
 
     public MyAdapter(boolean is_cardView, DataBaseViewModel viewModel) {
+        super(new DiffUtil.ItemCallback<Word>() {
+            @Override
+            public boolean areItemsTheSame(@NonNull Word oldItem, @NonNull Word newItem) {
+                return oldItem.getId() == newItem.getId();
+            }
+
+            @Override
+            public boolean areContentsTheSame(@NonNull Word oldItem, @NonNull Word newItem) {
+                return (oldItem.getWord().equals(newItem.getWord())
+                        && oldItem.getMeaning().equals(newItem.getMeaning())
+                        && oldItem.isChineseInvisible() == newItem.isChineseInvisible());
+            }
+        });
         this.is_cardView = is_cardView;
         this.viewModel = viewModel; //获取viewModel操作数据库
     }
 
-    public void setAllWords(List<Word> allWords) {
-        this.allWords = allWords;
-    }
 
     @NonNull
     @Override
@@ -72,7 +83,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
         //填充item的数据
-        final Word word = allWords.get(position);
+        final Word word = getItem(position);
         holder.textViewNum.setText(String.valueOf(position+1));
         holder.textViewChinese.setText(word.getMeaning());
         holder.textViewEnglish.setText(word.getWord());
@@ -86,11 +97,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             holder.textViewChinese.setVisibility(View.VISIBLE);
             holder.aSwitchChiniseInvisible.setChecked(false);
         }
-    }
-
-    @Override
-    public int getItemCount() {
-        return allWords.size();
     }
 
     static class MyViewHolder extends RecyclerView.ViewHolder {

@@ -22,6 +22,7 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -75,13 +76,13 @@ public class WordFragment extends Fragment {
                     @Override
                     public void onChanged(List<Word> words) {
                         int temp = myAdapter_normalView.getItemCount();
-                        myAdapter_normalView.setAllWords(words);
-                        myAdapter_cardView.setAllWords(words);
+                        //myAdapter_normalView.setAllWords(words);
+                        //myAdapter_cardView.setAllWords(words);
                         if (temp != words.size()) {
                             /*只有数据数量发生改变的时候采取刷新界面，
                             switchChineseInvisible的改变不要触发界面刷新，否则不平滑*/
-                            myAdapter_normalView.notifyDataSetChanged();
-                            myAdapter_cardView.notifyDataSetChanged();
+                            myAdapter_normalView.submitList(words);
+                            myAdapter_cardView.submitList(words);
                         }
                     }
                 });
@@ -100,6 +101,23 @@ public class WordFragment extends Fragment {
         myAdapter_normalView = new MyAdapter(false,wordViewModel);
         myAdapter_cardView = new MyAdapter(true,wordViewModel);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator() {
+            @Override
+            public void onAnimationFinished(@NonNull RecyclerView.ViewHolder viewHolder) {
+                //动画结束后把能看见的item的position都刷新一下
+                super.onAnimationFinished(viewHolder);
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if(linearLayoutManager != null) {
+                    int firstposition = linearLayoutManager.findFirstVisibleItemPosition();
+                    int lastposition = linearLayoutManager.findLastVisibleItemPosition();
+                    for (int i = firstposition;i<=lastposition;i++) {
+                        MyAdapter.MyViewHolder holder = (MyAdapter.MyViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
+                        if(holder != null)
+                            holder.textViewNum.setText(String.valueOf(i+1));
+                    }
+                }
+            }
+        });
         SharedPreferences shp = requireActivity().getSharedPreferences(view_type, Context.MODE_PRIVATE);
         boolean viewType = shp.getBoolean(view_type_key,false);
         if (viewType)
@@ -112,13 +130,15 @@ public class WordFragment extends Fragment {
             @Override
             public void onChanged(List<Word> words) {
                 int temp = myAdapter_normalView.getItemCount();
-                myAdapter_normalView.setAllWords(words);
-                myAdapter_cardView.setAllWords(words);
+                //myAdapter_normalView.setAllWords(words);
+                //myAdapter_cardView.setAllWords(words);
                 if (temp != words.size()) {
                     /*只有数据数量发生改变的时候采取刷新界面，
                     switchChineseInvisible的改变不要触发界面刷新，否则不平滑*/
-                    myAdapter_normalView.notifyDataSetChanged();
-                    myAdapter_cardView.notifyDataSetChanged();
+                    myAdapter_normalView.submitList(words);
+                    myAdapter_cardView.submitList(words);
+                    //myAdapter_cardView.notifyItemInserted(0);
+                    //myAdapter_normalView.notifyItemInserted(0);
                 }
             }
         });
@@ -168,5 +188,11 @@ public class WordFragment extends Fragment {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume() {
+        recyclerView.scrollToPosition(0);
+        super.onResume();
     }
 }
