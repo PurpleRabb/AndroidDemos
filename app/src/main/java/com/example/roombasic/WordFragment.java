@@ -23,10 +23,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -38,6 +40,7 @@ public class WordFragment extends Fragment {
     private LiveData<List<Word>> filteredWords;
     private static final String view_type = "view_type";
     private static final String view_type_key = "type";
+    private List<Word> allWords;
 
     public WordFragment() {
         // Required empty public constructor
@@ -78,6 +81,7 @@ public class WordFragment extends Fragment {
                         int temp = myAdapter_normalView.getItemCount();
                         //myAdapter_normalView.setAllWords(words);
                         //myAdapter_cardView.setAllWords(words);
+                        allWords = words;
                         if (temp != words.size()) {
                             /*只有数据数量发生改变的时候采取刷新界面，
                             switchChineseInvisible的改变不要触发界面刷新，否则不平滑*/
@@ -132,6 +136,7 @@ public class WordFragment extends Fragment {
                 int temp = myAdapter_normalView.getItemCount();
                 //myAdapter_normalView.setAllWords(words);
                 //myAdapter_cardView.setAllWords(words);
+                allWords = words;
                 if (temp != words.size()) {
                     /*只有数据数量发生改变的时候采取刷新界面，
                     switchChineseInvisible的改变不要触发界面刷新，否则不平滑*/
@@ -142,6 +147,27 @@ public class WordFragment extends Fragment {
                 }
             }
         });
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.START | ItemTouchHelper.END) {
+            /*滑动删除功能*/
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                final Word wordToDeleted = allWords.get(viewHolder.getAdapterPosition());
+                wordViewModel.deleteWords(wordToDeleted);
+                Snackbar.make(requireActivity().findViewById(R.id.wordFragmentView),"A word deleted",Snackbar.LENGTH_SHORT)
+                .setAction("Cancel", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        wordViewModel.insertWords(wordToDeleted);
+                    }
+                }).show();
+            }
+        }).attachToRecyclerView(recyclerView);
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,7 +216,8 @@ public class WordFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
+
+  @Override
     public void onResume() {
         recyclerView.scrollToPosition(0);
         super.onResume();

@@ -14,15 +14,14 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
 
-public class MyAdapter extends ListAdapter<Word,MyAdapter.MyViewHolder> {
+class MyAdapter extends ListAdapter<Word,MyAdapter.MyViewHolder> {
     boolean is_cardView;
     DataBaseViewModel viewModel;
 
     public MyAdapter(boolean is_cardView, DataBaseViewModel viewModel) {
         super(new DiffUtil.ItemCallback<Word>() {
+            /*根据列表内容是否变化来刷新列表*/
             @Override
             public boolean areItemsTheSame(@NonNull Word oldItem, @NonNull Word newItem) {
                 return oldItem.getId() == newItem.getId();
