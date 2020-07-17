@@ -35,14 +35,15 @@ public class FirstFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(FirstViewModel.class);
+        imageView.setRotation(mViewModel.rotationValue);
         final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(imageView,"rotation",0);
-
+        objectAnimator.setDuration(500);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!objectAnimator.isRunning()) {
                     objectAnimator.setFloatValues(imageView.getRotation() + 100);
-                    objectAnimator.setDuration(500);
+                    mViewModel.rotationValue += 100;
                     objectAnimator.start();
                 }
             }
