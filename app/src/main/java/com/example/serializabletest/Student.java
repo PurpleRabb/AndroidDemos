@@ -3,6 +3,7 @@ package com.example.serializabletest;
 import java.io.Serializable;
 
 public class Student implements Serializable {
+    private static final long serialVersionUID = -7665309632085514041L;
     //transient关键字可防止被序列化
     private String name;
     private int num;
