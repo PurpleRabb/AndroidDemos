@@ -5,6 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
+import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.android.synthetic.main.fragment_gallery.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -35,6 +40,22 @@ class GalleryFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_gallery, container, false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        var galleryAdapter = GalleryAdapter()
+        recyclerView.layoutManager = GridLayoutManager(requireContext(),2)
+        recyclerView.adapter = galleryAdapter
+        //ViewModelProvider(getActivity(),new SavedStateViewModelFactory(getActivity().getApplication(),this)).get(MyViewModel.class);
+        val galleryViewModel:GalleryViewModel = ViewModelProvider(requireActivity(),
+            SavedStateViewModelFactory(requireActivity().application,this)).get(GalleryViewModel::class.java)
+        galleryViewModel.photoList.observe(viewLifecycleOwner, Observer {
+                galleryAdapter.submitList(it)
+        })
+
+        //数据初始化
+        galleryViewModel.photoList.value?:galleryViewModel.fetchData()
     }
 
     companion object {
