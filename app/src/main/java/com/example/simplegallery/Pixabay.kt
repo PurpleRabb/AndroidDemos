@@ -3,6 +3,7 @@ package com.example.simplegallery
 import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.android.parcel.Parcelize
 
 
 data class Pixabay (
@@ -37,8 +38,9 @@ data class Pixabay (
     }
 }
 
+@Parcelize
 data class PhotoItem (
     @SerializedName("id") var photoId:Int,
     @SerializedName("previewURL") var previewURL:String,
     @SerializedName("largeImageURL") var largeImageURL:String
-)
+) : Parcelable
