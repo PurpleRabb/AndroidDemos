@@ -15,11 +15,11 @@ class GalleryViewModel(application: Application) : AndroidViewModel(application)
     val photoList:LiveData<List<PhotoItem>> //通过get，让外界获取LiveData而不是Mutable
             get() = _photoList
 
-    fun fetchData() {
+    fun fetchData(keyword:String) {
         val mykey = "12472743-874dc01dadd26dc44e0801d61"
         val stringRequest = StringRequest(
             Method.GET,
-            "https://pixabay.com/api/?key=${mykey}&q=yellow+flowers&image_type=photo",
+            "https://pixabay.com/api/?key=${mykey}&q=${keyword}&image_type=photo&per_page=30",
             Response.Listener {
                 //数据获取成功后的回调
                 this._photoList.value = Gson().fromJson(it,Pixabay::class.java).hits.toList()

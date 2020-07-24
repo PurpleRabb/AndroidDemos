@@ -1,14 +1,16 @@
 package com.example.simplegallery
 
 import android.os.Bundle
+import android.util.Log
+import android.view.*
+import android.widget.SearchView
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.simplegallery.R.*
 import kotlinx.android.synthetic.main.fragment_gallery.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -25,6 +27,7 @@ class GalleryFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    private var galleryViewModel: GalleryViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +35,7 @@ class GalleryFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -39,23 +43,51 @@ class GalleryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_gallery, container, false)
+        return inflater.inflate(layout.fragment_gallery, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        var galleryAdapter = GalleryAdapter()
-        recyclerView.layoutManager = GridLayoutManager(requireContext(),2)
+        val galleryAdapter = GalleryAdapter()
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         recyclerView.adapter = galleryAdapter
         //ViewModelProvider(getActivity(),new SavedStateViewModelFactory(getActivity().getApplication(),this)).get(MyViewModel.class);
-        val galleryViewModel:GalleryViewModel = ViewModelProvider(requireActivity(),
-            SavedStateViewModelFactory(requireActivity().application,this)).get(GalleryViewModel::class.java)
-        galleryViewModel.photoList.observe(viewLifecycleOwner, Observer {
-                galleryAdapter.submitList(it)
+        galleryViewModel = ViewModelProvider(
+            requireActivity(),
+            SavedStateViewModelFactory(requireActivity().application, this)
+        ).get(GalleryViewModel::class.java)
+        galleryViewModel!!.photoList.observe(viewLifecycleOwner, Observer {
+            galleryAdapter.submitList(it)
         })
 
         //数据初始化
-        galleryViewModel.photoList.value?:galleryViewModel.fetchData()
+        galleryViewModel!!.photoList.value ?: galleryViewModel!!.fetchData("sun+flower")
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu, menu)
+        val searchView = menu.findItem(R.id.app_bar_search).actionView as SearchView
+        searchView.apply {
+            maxWidth = 1000
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(p0: String?): Boolean {
+                    p0?.let { galleryViewModel!!.fetchData(it) }
+                    return true
+                }
+
+                override fun onQueryTextChange(p0: String?): Boolean {
+                    return true
+                }
+            })
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.app_bar_search -> Log.i("GalleryFragment","app_bar_search")
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {

@@ -14,16 +14,18 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import kotlinx.android.synthetic.main.fragment_gallery.view.*
 import kotlinx.android.synthetic.main.gallery_cell.view.*
 
 class GalleryAdapter :
     ListAdapter<PhotoItem, MyViewHolder>(DIFFCALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val inflater = LayoutInflater.from(parent.context).inflate(R.layout.gallery_cell, parent, false)
-        var holder = MyViewHolder(inflater)
+        val holder = MyViewHolder(inflater)
         inflater.imageView.setOnClickListener {
-            var bundle:Bundle = Bundle()
-            bundle.putParcelable("photo_item",getItem(holder.adapterPosition))
+            val bundle: Bundle = Bundle().apply {
+                putParcelable("photo_item",getItem(holder.adapterPosition))
+            }
             holder.itemView.findNavController().navigate(R.id.action_galleryFragment_to_photoFragment,bundle)
         }
         return holder
