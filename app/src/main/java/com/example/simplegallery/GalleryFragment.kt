@@ -58,10 +58,14 @@ class GalleryFragment : Fragment() {
         ).get(GalleryViewModel::class.java)
         galleryViewModel!!.photoList.observe(viewLifecycleOwner, Observer {
             galleryAdapter.submitList(it)
+            swipeLayout.isRefreshing = false //停止下拉转圈
         })
 
         //数据初始化
         galleryViewModel!!.photoList.value ?: galleryViewModel!!.fetchData("sun+flower")
+        swipeLayout.setOnRefreshListener {
+            galleryViewModel!!.fetchData("sun+flower")
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -73,6 +77,7 @@ class GalleryFragment : Fragment() {
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(p0: String?): Boolean {
                     p0?.let { galleryViewModel!!.fetchData(it) }
+                    swipeLayout.isRefreshing = true
                     return true
                 }
 
