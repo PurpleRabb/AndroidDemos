@@ -16,6 +16,8 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import kotlinx.android.synthetic.main.fragment_gallery.view.*
 import kotlinx.android.synthetic.main.gallery_cell.view.*
+import java.util.*
+import kotlin.collections.ArrayList as ArrayList1
 
 class GalleryAdapter :
     ListAdapter<PhotoItem, MyViewHolder>(DIFFCALLBACK) {
@@ -24,9 +26,11 @@ class GalleryAdapter :
         val holder = MyViewHolder(inflater)
         inflater.imageView.setOnClickListener {
             val bundle: Bundle = Bundle().apply {
-                putParcelable("photo_item",getItem(holder.adapterPosition))
+                //putParcelable("photo_item",getItem(holder.adapterPosition))
+                putParcelableArrayList("PHOTO_LIST", ArrayList(currentList))
+                putInt("PHOTO_POSITION",holder.adapterPosition)
             }
-            holder.itemView.findNavController().navigate(R.id.action_galleryFragment_to_photoFragment,bundle)
+            holder.itemView.findNavController().navigate(R.id.action_galleryFragment_to_photoViewPagerFragment,bundle)
         }
         return holder
     }
@@ -57,7 +61,10 @@ class GalleryAdapter :
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    return false.also { holder.itemView.shimmerLayout?.stopShimmerAnimation() }
+                    return false.also {
+                        holder.itemView.textViewLikes.text = getItem(position).likes.toString()
+                        holder.itemView.textViewFavorites.text = getItem(position).favorites.toString()
+                        holder.itemView.shimmerLayout?.stopShimmerAnimation() }
                 }
 
             })

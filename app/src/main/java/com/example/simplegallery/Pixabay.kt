@@ -42,5 +42,7 @@ data class Pixabay (
 data class PhotoItem (
     @SerializedName("id") var photoId:Int,
     @SerializedName("previewURL") var previewURL:String,
-    @SerializedName("largeImageURL") var largeImageURL:String
+    @SerializedName("largeImageURL") var largeImageURL:String,
+    @SerializedName("likes") var likes:Int,
+    @SerializedName("favorites") var favorites:Int
 ) : Parcelable
