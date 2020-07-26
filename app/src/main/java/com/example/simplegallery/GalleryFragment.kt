@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.simplegallery.R.*
 import kotlinx.android.synthetic.main.fragment_gallery.*
 
@@ -50,6 +51,7 @@ class GalleryFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         val galleryAdapter = GalleryAdapter()
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+        //recyclerView.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
         recyclerView.adapter = galleryAdapter
         //ViewModelProvider(getActivity(),new SavedStateViewModelFactory(getActivity().getApplication(),this)).get(MyViewModel.class);
         galleryViewModel = ViewModelProvider(
