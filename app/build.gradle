@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.simplegallery"
-        minSdkVersion 25
+        minSdkVersion 24
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -34,6 +34,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-alpha05'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
