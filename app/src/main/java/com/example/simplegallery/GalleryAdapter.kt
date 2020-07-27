@@ -42,7 +42,9 @@ class GalleryAdapter :
             }
         } else {
             holder = MyViewHolder(
-                LayoutInflater.from(parent.context).inflate(R.layout.gallery_footer, parent, false)
+                LayoutInflater.from(parent.context).inflate(R.layout.gallery_footer, parent, false).also {
+                    (it.layoutParams as StaggeredGridLayoutManager.LayoutParams).isFullSpan = true
+                }
             )
         }
         return holder
