@@ -73,7 +73,7 @@ class PhotoViewPagerFragment : Fragment() {
         })
 
         viewPager2.setCurrentItem(arguments?.getInt("PHOTO_POSITION") ?: 0, false)
-
+        //viewPager2.orientation = ViewPager2.ORIENTATION_VERTICAL
         saveButton.setOnClickListener {
             //动态权限判断，29之后写入权限放开，之前要动态申请
             if (Build.VERSION.SDK_INT < 29 && ContextCompat.checkSelfPermission(
