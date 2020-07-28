@@ -68,6 +68,23 @@ class GalleryFragment : Fragment() {
         swipeLayout.setOnRefreshListener {
             galleryViewModel!!.fetchData("sun+flower")
         }
+
+        recyclerView.setOnScrollChangeListener(object: View.OnScrollChangeListener {
+            //int scrollX, int scrollY, int oldScrollX, int oldScrollY
+            override fun onScrollChange(p0: View?, p1: Int, p2: Int, p3: Int, p4: Int) {
+                if (p4 > 0) {
+                    return
+                }
+                else {
+                    //向下滑
+                    val pos: IntArray = intArrayOf(0,0)
+                    (recyclerView.layoutManager as StaggeredGridLayoutManager).findLastVisibleItemPositions(pos)
+                    if (pos[0] == galleryAdapter.itemCount - 1) {
+                        Log.i("onScrollChange", "reach bottom!!!")
+                    }
+                }
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
