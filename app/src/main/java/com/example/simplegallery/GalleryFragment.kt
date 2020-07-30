@@ -5,13 +5,11 @@ import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.simplegallery.R.*
+import com.example.simplegallery.R.layout
 import kotlinx.android.synthetic.main.fragment_gallery.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -51,7 +49,8 @@ class GalleryFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         val galleryAdapter = GalleryAdapter()
         //recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        recyclerView.layoutManager = StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL)
+        recyclerView.layoutManager =
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.adapter = galleryAdapter
         //ViewModelProvider(getActivity(),new SavedStateViewModelFactory(getActivity().getApplication(),this)).get(MyViewModel.class);
         galleryViewModel = ViewModelProvider(
@@ -61,26 +60,56 @@ class GalleryFragment : Fragment() {
         galleryViewModel!!.photoList.observe(viewLifecycleOwner, Observer {
             galleryAdapter.submitList(it)
             swipeLayout.isRefreshing = false //停止下拉转圈
+            if (galleryViewModel!!.scrollToTop) {
+                recyclerView.scrollToPosition(0)
+                galleryViewModel!!.scrollToTop = false
+            }
+        })
+
+        galleryViewModel!!.DataStatus.observe(viewLifecycleOwner, Observer {
+            galleryAdapter.footerViewStatus = it
+            requireView().post { // Notify adapter with appropriate notify methods
+                //avoid "Cannot call this method in a scroll callback"
+                galleryAdapter.notifyItemChanged(galleryAdapter.itemCount - 1)
+            }
+            Log.i("GalleryViewModel", it.toString())
+            if (it == NETWORK_ERROR) swipeLayout.isRefreshing = false //网络错误停止刷新
         })
 
         //数据初始化
-        galleryViewModel!!.photoList.value ?: galleryViewModel!!.fetchData("sun+flower")
+        galleryViewModel!!.photoList.value
+            ?: galleryViewModel!!.fetchData(galleryViewModel!!.getCurrentKeyWord())
         swipeLayout.setOnRefreshListener {
-            galleryViewModel!!.fetchData("sun+flower")
+            //下拉重新刷新
+            galleryViewModel!!.fetchData(galleryViewModel!!.getCurrentKeyWord())
         }
 
-        recyclerView.setOnScrollChangeListener(object: View.OnScrollChangeListener {
+        recyclerView.setOnScrollChangeListener(object : View.OnScrollChangeListener {
             //int scrollX, int scrollY, int oldScrollX, int oldScrollY
             override fun onScrollChange(p0: View?, p1: Int, p2: Int, p3: Int, p4: Int) {
                 if (p4 > 0) {
                     return
-                }
-                else {
+                } else {
                     //向下滑
-                    val pos: IntArray = intArrayOf(0,0)
-                    (recyclerView.layoutManager as StaggeredGridLayoutManager).findLastVisibleItemPositions(pos)
+                    val pos: IntArray = intArrayOf(0, 0)
+                    (recyclerView.layoutManager as StaggeredGridLayoutManager).findLastVisibleItemPositions(
+                        pos
+                    )
                     if (pos[0] == galleryAdapter.itemCount - 1) {
-                        Log.i("onScrollChange", "reach bottom!!!")
+                        //Log.i("onScrollChange", "reach bottom!!!")
+                        galleryViewModel!!.fetchMore()
+                        if (galleryViewModel!!.isLoadingFinish()) {
+                            Log.i("onScrollChange", "loading finish!!!")
+//                            (recyclerView.layoutManager as StaggeredGridLayoutManager).findViewByPosition(pos[0])
+//                                ?.findViewById<TextView>(R.id.textView)?.text = "加载完成"
+//                            (recyclerView.layoutManager as StaggeredGridLayoutManager).findViewByPosition(pos[0])
+//                                ?.findViewById<ProgressBar>(R.id.progressBar)?.visibility = View.INVISIBLE
+                        } else {
+//                            (recyclerView.layoutManager as StaggeredGridLayoutManager).findViewByPosition(pos[0])
+//                                ?.findViewById<TextView>(R.id.textView)?.text = "加载中"
+//                            (recyclerView.layoutManager as StaggeredGridLayoutManager).findViewByPosition(pos[0])
+//                                ?.findViewById<ProgressBar>(R.id.progressBar)?.visibility = View.VISIBLE
+                        }
                     }
                 }
             }
@@ -109,7 +138,7 @@ class GalleryFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.app_bar_search -> Log.i("GalleryFragment","app_bar_search")
+            R.id.app_bar_search -> Log.i("GalleryFragment", "app_bar_search")
         }
         return super.onOptionsItemSelected(item)
     }

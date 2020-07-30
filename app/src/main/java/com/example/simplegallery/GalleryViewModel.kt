@@ -9,26 +9,89 @@ import com.android.volley.Request.Method
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.google.gson.Gson
+import kotlin.math.ceil
+
+const val DATA_CAN_LOAD = 0
+const val DATA_NO_MORE = 1
+const val NETWORK_ERROR = 2
 
 class GalleryViewModel(application: Application) : AndroidViewModel(application) {
+    private var _DataStatus = MutableLiveData<Int>()
+    var DataStatus:LiveData<Int> = _DataStatus
     private val _photoList = MutableLiveData<List<PhotoItem>>() //私有化，不让外界获得Mutable
+    private val mkey = "12472743-874dc01dadd26dc44e0801d61"
+    private val perPage = 50
+    private var page = 0
+    private var totalPages  = 1
+    private var keyword : String = "green+yellow+flower"
+    private var isLoading = false
+    private val TAG = "GalleryViewModel"
+    private var loadingFinish = false
+
+    var scrollToTop = true
+
     val photoList:LiveData<List<PhotoItem>> //通过get，让外界获取LiveData而不是Mutable
             get() = _photoList
 
     fun fetchData(keyword:String) {
-        val mykey = "12472743-874dc01dadd26dc44e0801d61"
+        Log.i(TAG,"###fetchData")
+        if (this.keyword != keyword) {
+            //一次新的查询
+            page = 1
+            scrollToTop = true
+        }
+        this.keyword = keyword
+        Log.i(TAG,"keyword=$keyword")
         val stringRequest = StringRequest(
             Method.GET,
-            "https://pixabay.com/api/?key=${mykey}&q=${keyword}&image_type=photo&per_page=30",
+            "https://pixabay.com/api/?key=${mkey}&q=${keyword}&image_type=photo&per_page=${perPage}&page=${page}",
             Response.Listener {
                 //数据获取成功后的回调
-                this._photoList.value = Gson().fromJson(it,Pixabay::class.java).hits.toList()
-                Log.i("GalleryViewModel", "fetchData: "+ photoList.value?.size.toString())
+                val gson = Gson().fromJson(it,Pixabay::class.java)
+                //Log.i("GalleryViewModel",gson.toString())
+                if (page > 1) {
+                    this._photoList.value = this._photoList.value?.plus(gson.hits.toList())
+                } else {
+                    this._photoList.value = gson.hits.toList()
+                }
+                loadingFinish = this._photoList.value?.size == gson.totalHits
+                Log.i(TAG,this._photoList.value?.size.toString() +"/" + gson.totalHits)
+                totalPages  = ceil((gson.totalHits.toDouble()/perPage)).toInt()
+                isLoading = false
+                Log.i(TAG, "fetchData: $totalPages")
             },
             Response.ErrorListener {
-                Log.d("GalleryViewModel", "fetchData: $it")
+                Log.d(TAG, "fetchData: $it")
+                isLoading = false
+                _DataStatus.value = NETWORK_ERROR
             }
         )
         VolleyInstance.getInstance(getApplication()).requestQueue.add(stringRequest)
+    }
+
+    fun fetchMore() {
+        if(!isLoading) {
+            Log.i(TAG,"fetchMore")
+            isLoading = true
+            if (page < totalPages) {
+                page++
+                _DataStatus.value = DATA_CAN_LOAD
+            }
+            else {
+                //加载完毕
+                page = totalPages
+                _DataStatus.value = DATA_NO_MORE
+                return
+            }
+            fetchData(keyword)
+        }
+    }
+
+    fun isLoadingFinish(): Boolean {
+        return loadingFinish
+    }
+
+    fun getCurrentKeyWord() : String {
+        return this.keyword
     }
 }

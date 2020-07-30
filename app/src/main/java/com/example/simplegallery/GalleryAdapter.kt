@@ -3,6 +3,7 @@ package com.example.simplegallery
 import android.graphics.drawable.Drawable
 import android.icu.lang.UCharacter
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import kotlinx.android.synthetic.main.fragment_gallery.view.*
 import kotlinx.android.synthetic.main.gallery_cell.view.*
+import kotlinx.android.synthetic.main.gallery_footer.view.*
 import java.util.*
 import kotlin.collections.ArrayList as ArrayList1
 
@@ -24,6 +26,8 @@ class GalleryAdapter :
         const val VIEW_NORMAL = 0
         const val VIEW_FOOTER = 1
     }
+
+    var footerViewStatus = DATA_CAN_LOAD //底部视图状态
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         var holder: MyViewHolder
@@ -52,6 +56,28 @@ class GalleryAdapter :
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         if (position == itemCount - 1) {
+            with (holder.itemView) {
+                when (footerViewStatus) {
+                    DATA_CAN_LOAD -> {
+                        progressBar.visibility = View.VISIBLE
+                        textView.text = "正在加载..."
+                        Log.i("GalleryViewModel","loading")
+                    }
+                    DATA_NO_MORE -> {
+                        progressBar.visibility = View.GONE
+                        textView.text = "加载完毕"
+                        Log.i("GalleryViewModel","loading finish")
+                    }
+                    NETWORK_ERROR -> {
+                        progressBar.visibility = View.VISIBLE
+                        textView.text = "网络故障，请重新刷新"
+                        Log.i("GalleryViewModel","loading error")
+                    }
+                    else -> {
+                        Log.i("GalleryViewModel","nothing")
+                    }
+                }
+            }
             return
         }
         holder.itemView.shimmerLayout.apply {
@@ -113,6 +139,7 @@ class GalleryAdapter :
     override fun getItemCount(): Int {
         return super.getItemCount() + 1 //增加一个位置给footer
     }
+
 }
 
 class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
