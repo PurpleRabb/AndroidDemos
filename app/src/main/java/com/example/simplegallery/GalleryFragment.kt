@@ -78,10 +78,10 @@ class GalleryFragment : Fragment() {
 
         //数据初始化
         galleryViewModel!!.photoList.value
-            ?: galleryViewModel!!.fetchData(galleryViewModel!!.getCurrentKeyWord())
+            ?: galleryViewModel!!.fetchReset(galleryViewModel!!.getCurrentKeyWord())
         swipeLayout.setOnRefreshListener {
             //下拉重新刷新
-            galleryViewModel!!.fetchData(galleryViewModel!!.getCurrentKeyWord())
+            galleryViewModel!!.fetchReset(galleryViewModel!!.getCurrentKeyWord())
         }
 
         recyclerView.setOnScrollChangeListener(object : View.OnScrollChangeListener {
@@ -97,19 +97,7 @@ class GalleryFragment : Fragment() {
                     )
                     if (pos[0] == galleryAdapter.itemCount - 1) {
                         //Log.i("onScrollChange", "reach bottom!!!")
-                        galleryViewModel!!.fetchMore()
-                        if (galleryViewModel!!.isLoadingFinish()) {
-                            Log.i("onScrollChange", "loading finish!!!")
-//                            (recyclerView.layoutManager as StaggeredGridLayoutManager).findViewByPosition(pos[0])
-//                                ?.findViewById<TextView>(R.id.textView)?.text = "加载完成"
-//                            (recyclerView.layoutManager as StaggeredGridLayoutManager).findViewByPosition(pos[0])
-//                                ?.findViewById<ProgressBar>(R.id.progressBar)?.visibility = View.INVISIBLE
-                        } else {
-//                            (recyclerView.layoutManager as StaggeredGridLayoutManager).findViewByPosition(pos[0])
-//                                ?.findViewById<TextView>(R.id.textView)?.text = "加载中"
-//                            (recyclerView.layoutManager as StaggeredGridLayoutManager).findViewByPosition(pos[0])
-//                                ?.findViewById<ProgressBar>(R.id.progressBar)?.visibility = View.VISIBLE
-                        }
+                        galleryViewModel!!.fetchData(galleryViewModel!!.getCurrentKeyWord())
                     }
                 }
             }
@@ -124,7 +112,7 @@ class GalleryFragment : Fragment() {
             maxWidth = 1000
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(p0: String?): Boolean {
-                    p0?.let { galleryViewModel!!.fetchData(it) }
+                    p0?.let { galleryViewModel!!.fetchReset(it) }
                     swipeLayout.isRefreshing = true
                     return true
                 }
