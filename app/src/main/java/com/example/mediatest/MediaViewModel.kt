@@ -20,7 +20,7 @@ class MediaViewModel(application: Application) : AndroidViewModel(application),L
     }
 
     private fun loadVideo() {
-        val file : AssetFileDescriptor = myApplication.getResources().openRawResourceFd(R.raw.my_video)
+        val file : AssetFileDescriptor = myApplication.getResources().openRawResourceFd(R.raw.cup)
         mediaPlay.apply {
             setDataSource(file)
             prepare()
