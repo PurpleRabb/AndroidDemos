@@ -6,11 +6,15 @@ import android.media.MediaPlayer
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.*
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MediaViewModel(application: Application) : AndroidViewModel(application),LifecycleObserver {
-    private val _visibility : MutableLiveData<Int> = MutableLiveData(View.VISIBLE)
-    private var _controllerBarVisiblity : MutableLiveData<Int> = MutableLiveData(View.VISIBLE)
+    private val _visibility : MutableLiveData<Int> = MutableLiveData(View.INVISIBLE)
+    private var _controllerBarVisiblity : MutableLiveData<Int> = MutableLiveData(View.INVISIBLE)
     private val _videoResolution = MutableLiveData(Pair(0,0))
+    private var controllerShowTime = 0L
     var controllerBarVisiblity : LiveData<Int> = _controllerBarVisiblity
     val barVisibility : LiveData<Int> = _visibility
     val videoResolution : LiveData<Pair<Int,Int>> = _videoResolution
@@ -39,8 +43,15 @@ class MediaViewModel(application: Application) : AndroidViewModel(application),L
     fun toggleControllerBar() {
         if (_controllerBarVisiblity.value == View.VISIBLE) {
             _controllerBarVisiblity.value = View.INVISIBLE
+            controllerShowTime = System.currentTimeMillis()
         } else {
             _controllerBarVisiblity.value = View.VISIBLE
+            viewModelScope.launch {
+                delay(3000)
+                if(System.currentTimeMillis() - controllerShowTime > 3000) {//保证3s后消失
+                    _controllerBarVisiblity.value = View.INVISIBLE
+                }
+            }
         }
     }
 
