@@ -9,7 +9,9 @@ import androidx.lifecycle.*
 
 class MediaViewModel(application: Application) : AndroidViewModel(application),LifecycleObserver {
     private val _visibility : MutableLiveData<Int> = MutableLiveData(View.VISIBLE)
+    private var _controllerBarVisiblity : MutableLiveData<Int> = MutableLiveData(View.VISIBLE)
     private val _videoResolution = MutableLiveData(Pair(0,0))
+    var controllerBarVisiblity : LiveData<Int> = _controllerBarVisiblity
     val barVisibility : LiveData<Int> = _visibility
     val videoResolution : LiveData<Pair<Int,Int>> = _videoResolution
     val mediaPlay: MediaPlayer = MediaPlayer()
@@ -31,6 +33,14 @@ class MediaViewModel(application: Application) : AndroidViewModel(application),L
             setOnVideoSizeChangedListener { _, width, height ->
                 _videoResolution.value = Pair(width,height)
             }
+        }
+    }
+
+    fun toggleControllerBar() {
+        if (_controllerBarVisiblity.value == View.VISIBLE) {
+            _controllerBarVisiblity.value = View.INVISIBLE
+        } else {
+            _controllerBarVisiblity.value = View.VISIBLE
         }
     }
 

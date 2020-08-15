@@ -5,11 +5,13 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
+import android.view.View
 import android.widget.FrameLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.SavedStateViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.controller_bar.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var viewModel : MediaViewModel
@@ -19,16 +21,20 @@ class MainActivity : AppCompatActivity() {
         var viewModel = ViewModelProvider(
             this,
             SavedStateViewModelFactory(application, this)
-        ).get(MediaViewModel::class.java)
+        ).get(MediaViewModel::class.java).apply {
+            barVisibility.observe(this@MainActivity, Observer {
+                progressBar.visibility = it
+            })
 
-        viewModel.barVisibility.observe(this, Observer {
-            progressBar.visibility = it
-        })
+            videoResolution.observe(this@MainActivity, Observer {
+                //注意这里要用post方式，待frameLayout准备好后再调用
+                frameLayout.post { resizeVideoSurface(it.first,it.second) }
+            })
 
-        viewModel.videoResolution.observe(this, Observer {
-            //注意这里要用post方式，待frameLayout准备好后再调用
-            frameLayout.post { resizeVideoSurface(it.first,it.second) }
-        })
+            controllerBarVisiblity.observe(this@MainActivity, Observer {
+                controller_bar.visibility = it
+            })
+        }
 
         lifecycle.addObserver(viewModel)
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
@@ -49,6 +55,10 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+        frameLayout.setOnClickListener {
+            viewModel.toggleControllerBar()
+        }
     }
 
     private fun resizeVideoSurface(width: Int, height: Int) {
