@@ -2,6 +2,7 @@ package com.example.mediatest
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
@@ -10,15 +11,18 @@ import android.widget.FrameLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.controller_bar.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     lateinit var viewModel : MediaViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        var viewModel = ViewModelProvider(
+        viewModel = ViewModelProvider(
             this,
             SavedStateViewModelFactory(application, this)
         ).get(MediaViewModel::class.java).apply {
@@ -27,6 +31,7 @@ class MainActivity : AppCompatActivity() {
             })
 
             videoResolution.observe(this@MainActivity, Observer {
+                seekBar.max = mediaPlay.duration
                 //注意这里要用post方式，待frameLayout准备好后再调用
                 frameLayout.post { resizeVideoSurface(it.first,it.second) }
             })
@@ -35,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                 controller_bar.visibility = it
             })
         }
-
+        updateMediaProgress()
         lifecycle.addObserver(viewModel)
         surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceChanged(
@@ -68,5 +73,15 @@ class MainActivity : AppCompatActivity() {
             FrameLayout.LayoutParams.MATCH_PARENT,
             Gravity.CENTER
         )
+    }
+
+    private fun updateMediaProgress() {
+        lifecycleScope.launch {
+            while(true) {
+                delay(500)
+                //seekBar.max要提前设置
+                seekBar.progress = viewModel?.mediaPlay.currentPosition
+            }
+        }
     }
 }
