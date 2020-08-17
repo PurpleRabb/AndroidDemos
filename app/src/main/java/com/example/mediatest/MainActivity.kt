@@ -8,6 +8,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceHolder.Callback
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.SeekBar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.SavedStateViewModelFactory
@@ -60,6 +61,24 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
+
+        seekBar.setOnSeekBarChangeListener( object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    viewModel.mediaPlay.seekTo(progress)
+                    viewModel.mediaPlay.start()
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                //TODO("Not yet implemented")
+            }
+        }
+        )
 
         frameLayout.setOnClickListener {
             viewModel.toggleControllerBar()
