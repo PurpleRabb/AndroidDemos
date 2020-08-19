@@ -40,6 +40,16 @@ class MainActivity : AppCompatActivity() {
             controllerBarVisiblity.observe(this@MainActivity, Observer {
                 controller_bar.visibility = it
             })
+
+            playStatus.observe(this@MainActivity, Observer {
+                playButton.isClickable = true
+                when (it) {
+                    PlayStatus.PLAYING -> playButton.setImageResource(R.drawable.ic_baseline_pause_24)
+                    PlayStatus.PAUSE -> playButton.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                    PlayStatus.NOT_READY -> playButton.isClickable = false
+                    PlayStatus.REPLAY -> playButton.setImageResource(R.drawable.ic_baseline_replay_24)
+                }
+            })
         }
         updateMediaProgress()
         lifecycle.addObserver(viewModel)
@@ -82,6 +92,10 @@ class MainActivity : AppCompatActivity() {
 
         frameLayout.setOnClickListener {
             viewModel.toggleControllerBar()
+        }
+
+        playButton.setOnClickListener {
+            viewModel.togglePlayStatus()
         }
     }
 
